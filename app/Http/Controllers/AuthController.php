@@ -54,4 +54,44 @@ class AuthController extends Controller
             'message' => 'Logout Success',
         ],200);
     }
+    public function update(Request $request)
+    {
+        $user = Auth::user();
+
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
+            'password' => 'nullable|string|min:6',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+        ]);
+
+        // Update name and email
+        $user->update([
+            'name' => $request->input('name'),
+            'email' => $request->input('email'),
+        ]);
+
+        // Update password if provided
+        if ($request->has('password')) {
+            $user->update([
+                'password' => bcrypt($request->input('password')),
+            ]);
+        }
+
+        // Update image if provided
+        if ($request->hasFile('image')) {
+            $imagePath = $request->file('image')->store('images', 'public');
+            $user->update([
+                'image' => $imagePath,
+            ]);
+        }
+
+        return response()->json(['message' => 'User updated successfully']);
+    }
+
+    public function getUser()
+    {
+        $user = User::where('id',Auth::user()->id)->first();
+        return response()->json($user);
+    }
 }

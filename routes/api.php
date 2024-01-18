@@ -22,6 +22,10 @@ Route::group(['prefix' => 'v1'], function () {
     Route::post('/login',[AuthController::class,'login'])->name('login');
 
     Route::group(['middleware' => ['auth:sanctum']], function() {
+
+        Route::get('user', [AuthController::class, 'getUser'])->name('user.get');
+        Route::put('user/update', [AuthController::class, 'update'])->name('user.update');
+
         Route::prefix('pemasukan')->group(function () {
             Route::get('/', [PemasukanController::class, 'index'])->name('pemasukan.index');
             Route::post('/', [PemasukanController::class, 'store'])->name('pemasukan.store');
